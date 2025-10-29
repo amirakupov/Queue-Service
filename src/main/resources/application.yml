@@ -1,0 +1,27 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: GetZoHO
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: amir
+    password: amir
+
+rabbitmq:
+  out:
+    exchange: ai.out.exchange
+    routingkey: ai.out.rk
+    queue: ai.out.queue
+
+  in:
+    exchange: ai.in.exchange
+    routingkey: ai.in.rk
+    queue: ai.in.queue
+  dlq: leads_queue.dlq
+  dlx: leads_exchange.dlx
+  dlqrk: leads_routingkey.dlq
+
+correlation:
+  prefix: zoho
