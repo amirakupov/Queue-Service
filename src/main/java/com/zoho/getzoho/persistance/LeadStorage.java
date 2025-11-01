@@ -1,10 +1,8 @@
 package com.zoho.getzoho.persistance;
 
 import com.zoho.getzoho.dto.IncomingDto;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -21,6 +19,10 @@ public class LeadStorage {
     }
     public Collection<IncomingDto> findAll() {
         return incomings.values();
+    }
+    public IncomingDto findByKey(String key) {
+        if (key == null) return null;
+        return incomings.get(key);
     }
 
 

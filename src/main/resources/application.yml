@@ -24,4 +24,4 @@ rabbitmq:
   dlqrk: leads_routingkey.dlq
 
 correlation:
-  prefix: zoho
+  prefix:
