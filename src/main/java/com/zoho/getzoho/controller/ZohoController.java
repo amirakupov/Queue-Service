@@ -13,7 +13,6 @@ import java.util.List;
 @RequestMapping("/api")
 public class ZohoController {
 
-
     public ZohoController(LeadService leadService) {
         this.leadService = leadService;
     }
@@ -31,8 +30,6 @@ public class ZohoController {
                 HttpMediaTypeException httpMediaTypeException = (HttpMediaTypeException) e;
             }
         }
-
-
         return null;
     }
 

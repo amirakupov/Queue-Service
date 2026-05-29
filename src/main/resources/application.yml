@@ -22,6 +22,11 @@ rabbitmq:
   dlq: leads_queue.dlq
   dlx: leads_exchange.dlx
   dlqrk: leads_routingkey.dlq
+  retry:
+    max-attempts: 3
+    initial-interval: 1000
+    multiplier: 3.0
+    max-interval: 30000
 
 correlation:
   prefix:

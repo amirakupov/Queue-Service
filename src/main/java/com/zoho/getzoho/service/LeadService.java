@@ -3,7 +3,6 @@ package com.zoho.getzoho.service;
 import com.zoho.getzoho.dto.AiOutboundDto;
 import com.zoho.getzoho.dto.IncomingDto;
 import com.zoho.getzoho.persistance.LeadStorage;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -25,7 +24,6 @@ public class LeadService {
     }
 
     public IngestResult saveBatch(List<IncomingDto> batch ){
-
         int accepted = 0;
         int created = 0;
         int updated = 0;
@@ -43,7 +41,7 @@ public class LeadService {
 
             String id = i.getId() == null ? "" : i.getId().trim();
             String email = i.getEmail() == null ? "" : i.getEmail().trim().toLowerCase();
-            String phone = i.getPhone() == null ? "" : i.getPhone().trim();
+            String phone = i.getPhone() == null ? "" : i.getPhone().trim()
 
             if (id.isEmpty() && email.isEmpty() && phone.isEmpty()) {
                 errors++;

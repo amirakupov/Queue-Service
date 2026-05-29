@@ -3,14 +3,17 @@ package com.zoho.getzoho.messaging;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
+import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 
 @Configuration
 @EnableRabbit
@@ -28,18 +31,41 @@ public class RabbitConfig {
     @Value("${rabbitmq.dlx}")  String dlx;
     @Value("${rabbitmq.dlqrk}") String dlqRoutingKey;
 
+    @Value("${rabbitmq.retry.max-attempts}") int maxAttempts;
+    @Value("${rabbitmq.retry.initial-interval}") long initialInterval;
+    @Value("${rabbitmq.retry.multiplier}") double multiplier;
+    @Value("${rabbitmq.retry.max-interval}") long maxInterval;
+
     @Bean
     public MessageConverter messageConverter() {
         return new Jackson2JsonMessageConverter();
     }
 
     @Bean
-    public AmqpTemplate amqpTemplate(ConnectionFactory connectionFactory, MessageConverter mc) {
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory, MessageConverter mc) {
         RabbitTemplate tpl = new RabbitTemplate(connectionFactory);
         tpl.setMessageConverter(mc);
         return tpl;
     }
 
+    @Bean
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
+            ConnectionFactory connectionFactory, MessageConverter mc, RabbitTemplate rabbitTemplate) {
+
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(mc);
+        factory.setDefaultRequeueRejected(false);
+
+        RetryOperationsInterceptor interceptor = RetryInterceptorBuilder.stateless()
+                .backOffOptions(initialInterval, multiplier, maxInterval)
+                .maxAttempts(maxAttempts)
+                .recoverer(new RepublishMessageRecoverer(rabbitTemplate, dlx, dlqRoutingKey))
+                .build();
+
+        factory.setAdviceChain(interceptor);
+        return factory;
+    }
 
     @Bean
     DirectExchange outExchange() {
